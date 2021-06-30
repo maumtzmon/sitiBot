@@ -14,6 +14,7 @@
 
 
 import urllib.request
+from urllib.error import URLError
 
 # def funcion_externa():
 #     DataFrame = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]),columns=['Col a', 'Col b', 'Col c'])
@@ -25,8 +26,8 @@ def check_url(checarIP, checarPuerto):
     try:
         error_code=urllib.request.urlopen(url).getcode()
         return error_code
-    except:
-        error_code= 'hay algo mal con la direccion o el puerto, intenta nuevamente'
+    except URLError as e:
+        error_code= str(e)
         return error_code
         
     
