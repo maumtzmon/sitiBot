@@ -26,7 +26,7 @@ from mensajes import output_mensajes
 from funciones import check_url #, funcion_externa
 
 # Token generado por el Bot Father, ver @BotFather en telegram
-Token_Telegram=#Token de telegram
+Token_Telegram='1806045886:AAFt4zl3n90QU6OmBaY_8XGoSH-1UG3hwYw'#Token de telegram
 
 #Esto es para que el bot esté buscando constantemente en el servidor por mensajes nuevos.
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(mesage)s', level=logging.INFO)
