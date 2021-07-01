@@ -2,12 +2,7 @@
 #
 # Plantilla de mensajes basicos del bot de Telegram
 # Ing. Mauricio Martinez Montero
-# LabDet, Criogenia. Instituto de Ciencias Nucleares, UNAM.
-#
-# Pequeña plantilla que contiene los mensajes y que se encarga de devolver 
-# el mensaje correspondiente a los botones declarados en el programa
-# principal 'main' 
-#
+# 
 #
 ########################################################################
 
