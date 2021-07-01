@@ -22,6 +22,5 @@ mensajes={'boton1':msg_uno,\
 
 # Funcion que devolvera el contenido del mensaje cuando se haya accionado un boton
 def output_mensajes(boton):
-    # esta funcion solo devueve strings pero puede devolver cualquier cosa que 
-    # sea programada dentro de ella 
+    print('mensajes')
     return mensajes[boton]
