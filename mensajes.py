@@ -11,7 +11,7 @@ msg_uno="Ingresa por favor la direccion Ip que quieras revisar. \n\nPor ejemplo,
 
 msg_dos='Ingresa un numero de puerto que quieras revisar en especifico, o escribe solo 80'
 
-msg_tres="Checar nuevamente la IP ingresada previamente"
+msg_tres="Checar periodicamente"
 
 # Diccionario en el que vamos a asocioar los botones declarados en el main
 # con  los mensajes que queremos que se desplieguen al ser accionados.

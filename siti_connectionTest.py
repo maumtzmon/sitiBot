@@ -6,14 +6,13 @@
 # Para SITI mx
 #
 # Pequeña plantilla que incluye librerias basicas para el manejo de 
-# un bot en Telegram utilizando Python 3 y que esta pensado para ser 
-# montado en un ordenador o dispositivo electronico que soporte
-# python 3 o micropython (pendiente)
+# un bot en Telegram utilizando Python 3 
 #
 #
 ########################################################################
 
 # Librerias basicas de Telegram
+#from SITI_bot.time_experiment import time_onServer
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram.ext.messagehandler import MessageHandler
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Message
@@ -23,13 +22,13 @@ import logging, os, signal, time
 
 # Librerias de archivos que se encuentran montados en el mismo directorio que el bot
 from mensajes import output_mensajes
-from funciones import check_url #, funcion_externa
+from funciones import  check_url, time_onServer# funcion_externa
 
 # Token generado por el Bot Father, ver @BotFather en telegram
 Token_Telegram=''#Token de telegram
 
 #Esto es para que el bot esté buscando constantemente en el servidor por mensajes nuevos.
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(mesage)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger('Kalib Bot')
 
 #Variables y archivos que va a utilizar para sus procesos
@@ -37,6 +36,7 @@ door = False
 boton= 0 
 checarIP=''
 checarPuerto=''
+interval = 60
 
 ######################################################################
 # Definicion de funciones principales del bot
@@ -54,7 +54,7 @@ def start(update, context):
 def keyboard(chat_id, text, context):
     kb = [[KeyboardButton("/ingresaIP")], \
          [KeyboardButton("/ingresaPuerto")], \
-         [KeyboardButton("/checaNuevamente")], \
+         [KeyboardButton("/checarConexion")], \
          #[KeyboardButton("/Boton_4a"), KeyboardButton("/Boton_4b")], \
          #[KeyboardButton("/Boton_5a"), KeyboardButton("/Boton_5b")], \
          #[KeyboardButton("/Boton_6")]]
@@ -93,14 +93,14 @@ def boton3(update, context):
     door = True
     boton = 3
 
-    logger.info('He recibido un comando Boton Ayuda')
+    logger.info('He recibido un comando Boton Checa Periodicamente')
     text = output_mensajes('boton3')
     chat_id = update.effective_chat.id
     keyboard(chat_id, text, context)
     if checarIP != '' and checarPuerto != '':
         checkURL=check_url(checarIP,checarPuerto)
         context.bot.send_message(chat_id,checkURL)
-    
+        startAlert(update, context)
     else:
         msg_respuestaNoIP = 'debes ingresar antes los datos usando los botones /ingresaIP e /ingresaPuerto'
         context.bot.send_message(chat_id,msg_respuestaNoIP)
@@ -111,6 +111,44 @@ def boton3(update, context):
     #query.answer()
 
     #return 0
+
+def startAlert(update, context):
+    logger.info('He recibido comando alerta')   #mensaje en la terminal
+    text = "Alertas Activadas"                  #Mensaje Telegram al usuario
+    chat_id = update.effective_chat.id          
+    context.bot.send_message(chat_id, text)
+    #calendarizacion de la rutina en el tiempo declarado previamente en "interval"
+    new_job = context.job_queue.run_repeating(Alerta, interval = interval, first = 0, context=update.effective_chat.id, name='my_job')
+
+def stopAlert(update, context):
+    logger.info('He recibido comando Stop Alerta')
+    chat_id = update.effective_chat.id
+    text = 'Las alertas se han desactivado'
+    context.bot.send_message(chat_id, text)
+    jobs = context.job_queue.get_jobs_by_name('my_job')
+    #jobs[0].stop()
+    jobs[0].schedule_removal() #remosion de rutina de la agenda
+
+def Alerta(context):
+    logger.info('Estoy en Alerta') 
+    chat_id = context.job.context
+    #Haz algo para revisar que esta en Alerta!
+    date_time=time_onServer()
+    text = 'Estoy en Alerta, checando si funciona!!!\n' + date_time
+    context.bot.send_message(chat_id, text)
+    if checarIP != '' and checarPuerto != '':
+        checkURL=check_url(checarIP,checarPuerto)
+        if checkURL != 200:
+            text = '\n\nAlgo no anda bien...\n\n RUN: COMMAND RISE VPN'
+            context.bot.send_message(chat_id, text)
+            logFile=open('log_file.log','a')
+            message= date_time+' -> ' + str(checkURL) + '\n'
+            logFile.write(message)
+            logFile.close()
+        else:
+            return 0
+    
+
 
 # Funcion que maneja los mensajes de texto enviados por el usuario al bot
 # sean o no solicitados por el bot
@@ -184,8 +222,8 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('ingresaIP', boton1))
     dispatcher.add_handler(CommandHandler('ingresaPuerto', boton2))
-    dispatcher.add_handler(CommandHandler('checaNuevamente', boton3))
-    # dispatcher.add_handler(CommandHandler())
+    dispatcher.add_handler(CommandHandler('checarConexion', boton3))
+    dispatcher.add_handler(CommandHandler('stopAlert', stopAlert))
     # dispatcher.add_handler(CommandHandler())
     # dispatcher.add_handler(CommandHandler())
     
