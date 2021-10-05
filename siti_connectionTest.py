@@ -16,7 +16,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram.ext.messagehandler import MessageHandler
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Message
-
+from token_str import Token
 # Librerias para uso de recursos de sistema
 import logging, os, signal, time
 
@@ -25,7 +25,7 @@ from mensajes import output_mensajes
 from funciones import  check_url, time_onServer# funcion_externa
 
 # Token generado por el Bot Father, ver @BotFather en telegram
-Token_Telegram=''#Token de telegram
+Token_Telegram=Token()
 
 #Esto es para que el bot esté buscando constantemente en el servidor por mensajes nuevos.
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -36,7 +36,7 @@ door = False
 boton= 0 
 checarIP=''
 checarPuerto=''
-interval = 60
+interval = 30
 
 ######################################################################
 # Definicion de funciones principales del bot
@@ -71,7 +71,7 @@ def boton1(update, context):
     door = True         #y que boton fue.
     boton = 1
 
-    logger.info('He recibido un comando Boton IP')
+    logger.info('He recibido un comando Boton IP, linea 74 siti_connection.py')
     text = output_mensajes('boton1')
     chat_id = update.effective_chat.id
     keyboard(chat_id, text, context)
@@ -82,7 +82,7 @@ def boton2(update, context):
     door = True
     boton = 2
 
-    logger.info('He recibido un comando Boton Puerto')
+    logger.info('He recibido un comando Boton Puerto', 'Linea 85 siti_conection.py')
     text = output_mensajes('boton2')
     chat_id = update.effective_chat.id
     keyboard(chat_id, text, context)
@@ -93,7 +93,7 @@ def boton3(update, context):
     door = True
     boton = 3
 
-    logger.info('He recibido un comando Boton Checa Periodicamente')
+    logger.info('He recibido un comando Boton Checa Periodicamente, linea 96 siti_connection.py')
     text = output_mensajes('boton3')
     chat_id = update.effective_chat.id
     keyboard(chat_id, text, context)
@@ -113,11 +113,11 @@ def boton3(update, context):
     #return 0
 
 def startAlert(update, context):
-    logger.info('He recibido comando alerta')   #mensaje en la terminal
+    logger.info('He recibido comando alerta, linea 116 siti_connection.py')   #mensaje en la terminal
     text = "Alertas Activadas"                  #Mensaje Telegram al usuario
     chat_id = update.effective_chat.id          
     context.bot.send_message(chat_id, text)
-    #calendarizacion de la rutina en el tiempo declarado previamente en "interval"
+    #calendarizacion de la rutina "Alerta" en el tiempo declarado previamente en "interval"= 60 seg
     new_job = context.job_queue.run_repeating(Alerta, interval = interval, first = 0, context=update.effective_chat.id, name='my_job')
 
 def stopAlert(update, context):
@@ -130,12 +130,12 @@ def stopAlert(update, context):
     jobs[0].schedule_removal() #remosion de rutina de la agenda
 
 def Alerta(context):
-    logger.info('Estoy en Alerta') 
+    logger.info('Estoy en Alerta, linea 133 siti_connection.py') 
     chat_id = context.job.context
     #Haz algo para revisar que esta en Alerta!
     date_time=time_onServer()
     text = 'Estoy en Alerta, checando si funciona!!!\n' + date_time
-    context.bot.send_message(chat_id, text)
+    context.bot.send_message(chat_id, text) #comentar cuando este listo el bot
     if checarIP != '' and checarPuerto != '':
         checkURL=check_url(checarIP,checarPuerto)
         if checkURL != 200:
@@ -146,6 +146,8 @@ def Alerta(context):
             logFile.write(message)
             logFile.close()
         else:
+            text = 'Todo bien'
+            context.bot.send_message(chat_id, text) #comentar cuando este listo el bot
             return 0
     
 
@@ -158,14 +160,14 @@ def Text(update,context):
     # accion de un boton o si se recibio el mensaje sin haberlo esperado
     global door, boton, checarIP, checarPuerto 
 
-    logger.info('recibí mensaje, estoy en text')
+    logger.info('recibí mensaje, estoy en text, linea 163 siti_connection.py')
     chat_id = update.effective_chat.id
     name = update.effective_chat.first_name
     try:
         link = update.effective_chat.link.split('/')[-1]
     except:
         link = 'no_tiene_link'
-    print(link + '/' + name)
+    print('usuario: '+link + '/' + name + ', linea 170 siti_connection.py' )
     
     if door == True:
 
