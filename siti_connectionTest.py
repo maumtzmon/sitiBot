@@ -17,6 +17,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from telegram.ext.messagehandler import MessageHandler
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from token_str import Token
+from VPN_tools import Rasdial
 # Librerias para uso de recursos de sistema
 import logging, os, signal, time
 
@@ -82,7 +83,7 @@ def boton2(update, context):
     door = True
     boton = 2
 
-    logger.info('He recibido un comando Boton Puerto', 'Linea 85 siti_conection.py')
+    logger.info('He recibido un comando Boton Puerto, Linea 85 siti_conection.py')
     text = output_mensajes('boton2')
     chat_id = update.effective_chat.id
     keyboard(chat_id, text, context)
@@ -92,15 +93,19 @@ def boton3(update, context):
     global door, boton   
     door = True
     boton = 3
-
+    outputMessage = ''
     logger.info('He recibido un comando Boton Checa Periodicamente, linea 96 siti_connection.py')
     text = output_mensajes('boton3')
     chat_id = update.effective_chat.id
     keyboard(chat_id, text, context)
     if checarIP != '' and checarPuerto != '':
         checkURL=check_url(checarIP,checarPuerto)
-        context.bot.send_message(chat_id,checkURL)
-        startAlert(update, context)
+        if checkURL != 200:
+            outputMessage='error, no conexion! \n\n Alerta! \n \n Checa manualmente!'
+        else:
+            outputMessage = 'bien! \n\nEl link funciona!\n\n Revisare que este asi cada '+ str(interval) + ' seg'
+            context.bot.send_message(chat_id,outputMessage)
+            startAlert(update, context)
     else:
         msg_respuestaNoIP = 'debes ingresar antes los datos usando los botones /ingresaIP e /ingresaPuerto'
         context.bot.send_message(chat_id,msg_respuestaNoIP)
@@ -139,12 +144,22 @@ def Alerta(context):
     if checarIP != '' and checarPuerto != '':
         checkURL=check_url(checarIP,checarPuerto)
         if checkURL != 200:
-            text = '\n\nAlgo no anda bien...\n\n RUN: COMMAND RISE VPN'
+            text = '\n\nAlgo no anda bien...\n\n RUN: COMMAND RISE VPN' #comentar cuando este listo el bot
             context.bot.send_message(chat_id, text)
             logFile=open('log_file.log','a')
-            message= date_time+' -> ' + str(checkURL) + '\n'
-            logFile.write(message)
-            logFile.close()
+            Rasdial_output=Rasdial()
+            logger.info(Rasdial_output)#rise vpn
+            if Rasdial_output=='VPN rised up':
+                message= date_time+' -> ' + str(checkURL) + '\n'
+                logFile.write(message)
+                logFile.close()
+            else:
+                message= date_time+' -> ' + str(checkURL) + 'Rasdial error' + Rasdial_output + '\n'
+                logFile.write(message)
+                logFile.close()
+                text = '\n\nAlgo no anda bien...\n\n\nALERTA:\nEL COMANDO RASDIAL NO FUNCIONO!!!\n\n VERIFICA MANUALMENTE\n'
+                context.bot.send_message(chat_id, text)
+            
         else:
             text = 'Todo bien'
             context.bot.send_message(chat_id, text) #comentar cuando este listo el bot
@@ -189,8 +204,13 @@ def Text(update,context):
         
         if checarIP != '' and checarPuerto != '':
             checkURL=check_url(checarIP,checarPuerto)
-            context.bot.send_message(chat_id,checkURL)
-    
+            logger.info(checkURL)
+            if checkURL != 200:
+                outPutmessage = 'Algo anda mal! \n\n ALERTA!\n\n Checa la conexion manualmente!!!'
+                context.bot.send_message(chat_id,outPutmessage)
+            elif checkURL == 200:
+                outPutmessage = 'Bien, el link funciona!\n\nSi deseas que revise periodicamente el link presiona /checarConexion'
+                context.bot.send_message(chat_id,outPutmessage)
       
         # chat_id_to_Mau = 18616105 #este chat_id es mio, me enviara un mensaje para indicar que alguien esta usando el bot
         # text_to_Mau = 'el usuario: ' + name + '/ @'+ link + ', hizo una sugerencia para implementar: \n'+ messageRecived

@@ -14,7 +14,7 @@ msg_uno= 'A continuacion, ingresa la direccion Ip que quieras revisar. por ejemp
 
 msg_dos='Ingresa el numero de puerto de la direccion Ip que deseas consultar'
 
-msg_tres='mensaje tres'
+msg_tres='Listo, vamos a verificar de manera periodica la conexion'
 
 # Diccionario en el que vamos a asocioar los botones declarados en el main
 # con  los mensajes que queremos que se desplieguen al ser accionados.
